@@ -1,0 +1,82 @@
+[
+  {
+    "text": " Have you ever shipped a mobile app in Swift?",
+    "model": "openai/whisper-large-v3-turbo",
+    "audio_seconds": 10.0,
+    "cost": 0.000111111111111,
+    "seconds": 0.8,
+    "file": "clips/mine-01.m4a",
+    "expected": "Jeevan Gowda, what did you learn building campus events navigator for cpsc 415?",
+    "check": {
+      "ok": false,
+      "wer": 0.923,
+      "missing": [
+        "Jeevan",
+        "415"
+      ],
+      "empty": false
+    }
+  },
+  {
+    "text": " Jeevan Gowda, what did you learn building Campus Events Navigator for CBSC 415?  Thank you.",
+    "model": "openai/whisper-large-v3-turbo",
+    "audio_seconds": 8.04,
+    "cost": 2.67732e-05,
+    "seconds": 6.9,
+    "file": "clips/mine-02.m4a",
+    "expected": "have you ever shipped mobile app in swift",
+    "check": {
+      "ok": false,
+      "wer": 1.75,
+      "missing": [
+        "Swift"
+      ],
+      "empty": false
+    }
+  },
+  {
+    "text": " What programming languages have you shipped code in, and which one would you choose for a new web service?",
+    "model": "openai/whisper-large-v3-turbo",
+    "audio_seconds": 6.38,
+    "cost": 2.12454e-05,
+    "seconds": 2.7,
+    "file": "clips/course/clip-01.wav",
+    "expected": "What programming languages have you shipped code in, and which one would you choose for a new web service?",
+    "check": {
+      "ok": true,
+      "wer": 0.0,
+      "missing": [],
+      "empty": false
+    }
+  },
+  {
+    "text": " Have you ever deployed anything with Kubernetes?  Be honest, I'm comparing you with a boot camp graduate.  Music",
+    "model": "openai/whisper-large-v3-turbo",
+    "audio_seconds": 8.061,
+    "cost": 2.684313e-05,
+    "seconds": 1.6,
+    "file": "clips/course/clip-02.wav",
+    "expected": "Have you ever deployed anything with Kubernetes? Be honest; I'm comparing you with a bootcamp graduate.",
+    "check": {
+      "ok": true,
+      "wer": 0.188,
+      "missing": [],
+      "empty": false
+    }
+  },
+  {
+    "text": " Tell me about the RAG project from CPSC 415.  How many chunks did the index have and what did a query cost?",
+    "model": "openai/whisper-large-v3-turbo",
+    "audio_seconds": 7.708,
+    "cost": 2.566764e-05,
+    "seconds": 1.9,
+    "file": "clips/course/clip-03.wav",
+    "expected": "Tell me about the RAG project from CPSC 415: how many chunks did the index have, and what did a query cost?",
+    "check": {
+      "ok": true,
+      "wer": 0.0,
+      "missing": [],
+      "empty": false
+    }
+  }
+]
