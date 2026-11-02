@@ -30,7 +30,35 @@ Second run: **10 passed in 0.02s**.
 
 ## Transcription: per clip, per model
 
-_(pending: needs my clips, `clips/expected.json`, and the key)_
+`expected.json` for my clips: I dictated the text in the session and it was typed into the file verbatim,
+then committed (`4dcdbe4`) before any model heard the clips.
+
+### Whisper run 1: my clip files were mislabeled (kept as `transcripts-whisper-run1-mislabeled.json`)
+
+| Clip | Model | WER | Missing | Audio s | Cost | Call s |
+|---|---|---|---|---|---|---|
+| mine-01.m4a (as labeled) | whisper-large-v3-turbo | 0.923 FAIL | Jeevan, 415 | 10.0 | $0.000111 | 0.8 |
+| mine-02.m4a (as labeled) | whisper-large-v3-turbo | 1.75 FAIL | Swift | 8.04 | $0.0000268 | 6.9 |
+| course/clip-01.wav | whisper-large-v3-turbo | 0.0 ok | — | 6.38 | $0.0000212 | 2.7 |
+| course/clip-02.wav | whisper-large-v3-turbo | 0.188 ok (clip tolerance 0.2) | — | 8.061 | $0.0000268 | 1.6 |
+| course/clip-03.wav | whisper-large-v3-turbo | 0.0 ok | — | 7.708 | $0.0000257 | 1.9 |
+
+Total $0.00021. The checker caught a pairing error, not a transcription error: `mine-01.m4a` held the
+Swift question and `mine-02.m4a` the CPSC 415 question (the 4.2 s file is the short one). I swapped the
+**audio filenames** (`6c15e8b`); `expected.json` was not touched.
+
+Run-1 text scored against the corrected pairing (no new call):
+- Jeevan clip: got "Jeevan Gowda, what did you learn building Campus Events Navigator for **CBSC** 415? **Thank you.**"
+  WER 0.231, FAIL. Name and "415" survived. "CPSC" was heard as "CBSC", and Whisper appended "Thank you."
+  to the trailing silence (the same habit as "Music" on course clip 2).
+- Swift clip: got "Have you ever shipped **a** mobile app in Swift?" WER 0.125, ok. The extra "a" is either
+  a Whisper insertion or a word I said and left out of `expected.json`; I check this by listening.
+- The 4.2 s Swift clip was billed as **10.0 s** of audio at $0.000111, about 4× the per-second price of the
+  others. It looks like a 10-second minimum on whichever host served that call.
+
+### Whisper run 2 and Scribe (correct pairing)
+
+_(pending)_
 
 | Clip | Model | WER | Missing | Audio s | Cost | Call s |
 |---|---|---|---|---|---|---|
