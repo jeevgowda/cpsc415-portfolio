@@ -1,0 +1,23 @@
+{
+  "person": {
+    "name": "Jeevan Gowda Kumaraswamy",
+    "role": "Computer Science Senior @ Trinity College",
+    "bio": "Developer specializing in polyglot backends, microservices, and applied cryptographic systems."
+  },
+  "projects": [
+    {
+      "name": "Campus Events Navigator",
+      "what_is_this": "A polyglot microservices platform for tracking and discovering campus events.",
+      "why_this_choice": "Built to explore Kubernetes orchestration, Python FastAPI, and Spring Boot service integration.",
+      "what_breaks": "High latency during initial cold starts when scaling down container pods under low resources.",
+      "what_did_i_learn": "Managing inter-service communication via NGINX Ingress and containerized state management using Redis."
+    }
+  ],
+  "shipped_skills": ["Python", "Java", "Docker", "Kubernetes", "Git", "Spring Boot", "FastAPI"],
+  "learning_goals": ["Zero-Knowledge Proofs (zk-SNARKs)", "Neo4j Graph Processing"],
+  "not_yet": [
+    {"skill": "C++ Game Engine Development", "why": "Prioritized web microservices and cryptographic backend architectures over low-level graphics rendering."},
+    {"skill": "Kubernetes Production Cluster Administration", "why": "Focused on application-level container orchestration in local homelabs rather than enterprise multi-region cloud ops."},
+    {"skill": "Mobile App Development (React Native / Swift)", "why": "Focused on backend REST API development and browser-based frontends rather than mobile platforms."}
+  ]
+}

@@ -1,0 +1,2 @@
+# voice/ holds the local modules (check, speak, transcribe), so ruff sorts them as first-party.
+src = ["voice"]
