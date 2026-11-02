@@ -58,23 +58,94 @@ Run-1 text scored against the corrected pairing (no new call):
 
 ### Whisper run 2 and Scribe (correct pairing)
 
-_(pending)_
+Transcript files: `transcripts-whisper.json`, `transcripts-scribe.json`. One call per clip per model.
 
 | Clip | Model | WER | Missing | Audio s | Cost | Call s |
 |---|---|---|---|---|---|---|
+| mine-01.m4a (Jeevan / CPSC 415) | whisper-large-v3-turbo | **0.231 FAIL** | — | 8.04 | $0.0000268 | 0.9 |
+| mine-01.m4a | scribe-v2 | 0.0 ok | — | 8.02 | $0.000490 | 1.2 |
+| mine-02.m4a (Swift) | whisper-large-v3-turbo | 0.125 ok | — | 4.2 | $0.0000140 | 0.6 |
+| mine-02.m4a | scribe-v2 | 0.125 ok | — | 4.18 | $0.000256 | 0.6 |
+| course/clip-01.wav | whisper-large-v3-turbo | 0.0 ok | — | 6.38 | $0.0000212 | 1.5 |
+| course/clip-01.wav | scribe-v2 | 0.0 ok | — | 6.38 | $0.000390 | 0.8 |
+| course/clip-02.wav | whisper-large-v3-turbo | 0.188 ok (clip tolerance 0.2) | — | 8.061 | $0.0000268 | 1.4 |
+| course/clip-02.wav | scribe-v2 | 0.0 ok | — | 8.062 | $0.000493 | 0.6 |
+| course/clip-03.wav | whisper-large-v3-turbo | 0.0 ok | — | 7.708 | $0.0000257 | 0.7 |
+| course/clip-03.wav | scribe-v2 | 0.0 ok | — | 7.708 | $0.000471 | 0.6 |
 
-Which model got my name right, and what I heard when I played each clip: _(pending)_
+Totals: Whisper $0.00011, Scribe $0.00210 (about 19× Whisper for the same five clips).
+
+**My name and numbers.** Both models wrote "Jeevan Gowda" correctly. Only **Scribe** got the course number
+right: Whisper heard "CPSC 415" as "**CBSC** 415" (same result in run 1 and run 2, so it is not a fluke) and
+appended "**Thank you.**" to the trailing silence. "415" survived in both, so `must_contain` passed and the
+WER tolerance is what failed the clip. I am not raising the tolerance: "CBSC" is a real error in exactly
+the word a recruiter would check. Whisper also appended "Music" to course clip 2, the habit the course
+notes describe.
+
+**"a mobile app".** Both models heard "shipped **a** mobile app" in my Swift clip, and `expected.json` omits
+"a". When two independent transcribers agree on an extra word, the likelier explanation is that I said it
+and my expected text is missing it. I left `expected.json` as written (it was committed before the models
+heard the clip); the 0.125 is recorded as it scored.
+
+**What I heard when I played each clip:** _(pending: I listen to mine-01 and mine-02)_
+
+**Billing quirk.** One Whisper call per run was billed as exactly 10.0 s of audio at $0.000111 (run 1: the
+4.2 s Swift clip; eval run: course clip 1), about 4× the usual price. Different clips each time, so it looks
+like a 10-second minimum on one of the hosts serving the model, not a property of the clip.
+
+### The billed eval (`pytest voice/tests -v -s`)
+
+**15 passed, 1 failed** in 8.5 s: the 10 no-key tests, 4 of 5 clips, and the speech test (87,360 bytes of
+real MP3, $0.000735). The failure is `mine-01.m4a` on Whisper (WER 0.231, the CBSC/"Thank you." result
+above), and it is left failing on purpose: the eval runs on the class model, and the class model got my
+course number wrong. Cost about $0.001.
 
 ## The answer, spoken twice
 
-_(pending)_
+Typed answer to my first clip (`answer-mine-01.json`, `minimax/minimax-m3`, $0.000354, 3.0 s):
 
-| Voice | Chars | Bytes | Est. cost | Call s | My name | "CPSC 415" | Abbreviations |
-|---|---|---|---|---|---|---|---|
+> From the Campus Events Navigator project, Jeevan learned how to manage inter-service communication through
+> NGINX Ingress and handle containerized state management using Redis. I don't have any record linking this
+> project to a CPSC 415 course specifically, so I can't confirm that connection.
+
+It refused to fabricate: the profile does not tie Campus Events Navigator to CPSC 415, and it said so.
+
+| Voice | File | Chars | Bytes | Est. cost | Call s | Audio s | My name | "CPSC 415" | "NGINX", "Redis" |
+|---|---|---|---|---|---|---|---|---|---|
+| `microsoft/mai-voice-2.1-flash` / `en-US-Harper` | `answer-harper.mp3` | 291 | 391,680 | $0.004365 | 2.1 | 19.6 | _(pending)_ | _(pending)_ | _(pending)_ |
+| `microsoft/mai-voice-2.1-flash` / `en-IN-Priya` | `answer-priya.mp3` | 291 | 433,920 | $0.004365 | 1.4 | 21.7 | _(pending)_ | _(pending)_ | _(pending)_ |
+
+Both costs are **estimated** (catalog price per character × 291): the speech reply is audio bytes with no
+usage object. The bill is in the generation record named by the `X-Generation-Id` header.
 
 ## Browser check
 
-_(pending: `python3 -m pytest test_browser.py -v -s` with the server up; the last three assertions)_
+Server started with the key in its environment. The pytest process that drove the browser ran with the
+key **unset**. `python3 -m pytest test_browser.py -v -s`: **1 passed in 5.76 s**. It uploaded
+`clips/course/clip-02.wav` through the page's file picker.
+
+Before the test: `POST /api/voice` with `Content-Type: text/plain` → **415** with the list of accepted types,
+and no model call.
+
+What the page showed:
+
+> You said: Have you ever deployed anything with Kubernetes? Be honest, I'm comparing you with a boot camp graduate. Music
+>
+> Answer: Yes, Kubernetes is in my shipped skills and I used it as part of my Campus Events Navigator project to
+> orchestrate polyglot microservices with NGINX Ingress and Redis-backed state. That said, I'll be straight with
+> you: my Kubernetes experience is application-level orchestration in local homelab setups, not enterprise
+> production cluster administration across multi-region cloud environments. So compared to someone who's run
+> production clusters at scale, there's a real gap there that I haven't closed yet.
+>
+> [stt $0.00002684313 · chat $0.00038995 · tts $0.007605 · 0.9s + 2s + 1.5s]
+
+The last three assertions, all passed:
+1. `all(auth is None for _, auth in requests)`: **no Authorization header left the browser.**
+2. `all("openrouter" not in url for url, _ in requests)`: **the browser never called the provider.**
+3. `any(url.endswith("/api/voice") for url, _ in requests)`: **it called our server.**
+
+My judgment of the answer: honest. Kubernetes is in `shipped_skills`, and production cluster administration
+is in `not_yet`, and it said both. Whisper's trailing "Music" reached the chat model, which ignored it.
 
 ## One turn
 
