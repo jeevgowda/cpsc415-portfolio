@@ -87,7 +87,13 @@ notes describe.
 and my expected text is missing it. I left `expected.json` as written (it was committed before the models
 heard the clip); the 0.125 is recorded as it scored.
 
-**What I heard when I played each clip:** _(pending: I listen to mine-01 and mine-02)_
+**What I heard when I played each clip** (in my own terminal, not through the agent):
+- mine-01: I said "CPSC" clearly, so Whisper's "CBSC" is the model's mistake. I did **not** say "Thank you";
+  Whisper invented it from the trailing silence. Scribe's transcript is exactly what I said.
+- mine-02: I did say "shipped **a** mobile app". My `expected.json` text is missing the "a", so the 0.125 on
+  both models is my transcription error, not theirs. `expected.json` stays as committed; this note is the correction.
+
+**Which model got my name and numbers right:** both got "Jeevan Gowda"; only Scribe got "CPSC 415".
 
 **Billing quirk.** One Whisper call per run was billed as exactly 10.0 s of audio at $0.000111 (run 1: the
 4.2 s Swift clip; eval run: course clip 1), about 4× the usual price. Different clips each time, so it looks
@@ -112,8 +118,13 @@ It refused to fabricate: the profile does not tie Campus Events Navigator to CPS
 
 | Voice | File | Chars | Bytes | Est. cost | Call s | Audio s | My name | "CPSC 415" | "NGINX", "Redis" |
 |---|---|---|---|---|---|---|---|---|---|
-| `microsoft/mai-voice-2.1-flash` / `en-US-Harper` | `answer-harper.mp3` | 291 | 391,680 | $0.004365 | 2.1 | 19.6 | _(pending)_ | _(pending)_ | _(pending)_ |
-| `microsoft/mai-voice-2.1-flash` / `en-IN-Priya` | `answer-priya.mp3` | 291 | 433,920 | $0.004365 | 1.4 | 21.7 | _(pending)_ | _(pending)_ | _(pending)_ |
+| `microsoft/mai-voice-2.1-flash` / `en-US-Harper` | `answer-harper.mp3` | 291 | 391,680 | $0.004365 | 2.1 | 19.6 | fine | fine | fine |
+| `microsoft/mai-voice-2.1-flash` / `en-IN-Priya` | `answer-priya.mp3` | 291 | 433,920 | $0.004365 | 1.4 | 21.7 | fine | fine | fine |
+
+Listened to both: each voice said "Jeevan", "CPSC 415", and "NGINX"
+acceptably; neither mangled my name. **I prefer Priya (`en-IN-Priya`) for the site.** The spec's default is
+still Harper; switching the default voice is a spec change for after Week 7. Same model and price per
+character, so the switch costs nothing extra.
 
 Both costs are **estimated** (catalog price per character × 291): the speech reply is audio bytes with no
 usage object. The bill is in the generation record named by the `X-Generation-Id` header.
@@ -149,4 +160,36 @@ is in `not_yet`, and it said both. Whisper's trailing "Music" reached the chat m
 
 ## One turn
 
-_(pending: one live microphone question: transcript, answer, three costs, total)_
+One question asked by me into the laptop microphone on http://localhost:8000 (Chrome, hold-to-talk, `audio/webm`),
+11:39:59 on November 2. I asked: "What skills has Jeevan not learned yet?"
+
+> You said: What skills has **Jamin** not learned yet?
+>
+> Answer: I don't have information about anyone named Jamin, so I can't speak to their skills. I can only share
+> details about Jeevan Gowda Kumaraswamy, if you'd like to ask about them.
+>
+> [stt $0.00001338327 · chat $0.00024657 · tts $0.00261 · 1.4s + 1s + 0.9s]
+
+| Step | Model | Seconds | Cost |
+|---|---|---|---|
+| Transcription | `openai/whisper-large-v3-turbo` | 1.4 | $0.0000134 |
+| Answer | `minimax/minimax-m3` | 1.0 | $0.000247 |
+| Speech | `microsoft/mai-voice-2.1-flash` / `en-US-Harper` | 0.9 | $0.00261 (estimated) |
+| **Total** | | **3.3** | **$0.00287** |
+
+**What happened.** Whisper heard my name as "Jamin": live, from a laptop microphone, the misheard-name risk
+in `plan.md` happened on the first try. The chatbot did the honest thing: it did not guess that "Jamin" meant
+me and said it only knows about Jeevan Gowda Kumaraswamy. Because the page shows "You said:", the visitor can
+see the mistake and ask again. Honest, but the visitor got no answer to the question. The two-model comparison
+above points at the fix: Scribe got my name and "CPSC 415" right on every clip, at about 19× Whisper's price,
+which is still under $0.0005 a clip.
+
+A request at 11:39:46 (a very short press) returned 200 with no `turn:` line in the server log. That is the
+empty-transcript path (behavior 1): "I didn't catch that", with no chat or speech call billed.
+
+**For the hosting decision.** One voice turn costs about **$0.003** (this turn, short answer) to **$0.008**
+(the browser check's longer answer). Speech is about 90% of it, priced per character of the answer, so the
+three-sentence cap is also the cost cap. That is about **$3–8 per 1,000 spoken questions**. A typed question
+costs only the chat step, about $0.0003. The deployed version needs a per-visitor rate limit, and the key
+lives in the host's environment variables, never in the repository. This number goes into `spec.md` with
+`weeks/07/hosting.md` before November 30.
