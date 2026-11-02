@@ -1,0 +1,8 @@
+[
+  {"file": "mine-01.m4a",
+   "text": "Jeevan Gowda, what did you learn building campus events navigator for cpsc 415?",
+   "must_contain": ["Jeevan", "415"]},
+  {"file": "mine-02.m4a",
+   "text": "have you ever shipped mobile app in swift",
+   "must_contain": ["Swift"]}
+]
